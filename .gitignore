@@ -1,8 +1,8 @@
-*/build/
-.idea/
-*/.idea/
+# IDE dirs
+[Bb]uild
+.idea
 
 # complied binary files:
-*/.dll
-*/.[oa]
-*/.exe
+.dll
+.[oa]
+.exe
