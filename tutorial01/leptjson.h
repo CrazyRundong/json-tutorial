@@ -7,12 +7,12 @@ typedef struct {
     lept_type type;
 }lept_value;
 
-enum {
+typedef enum {
     LEPT_PARSE_OK = 0,  /* no error during parse */
     LEPT_PARSE_EXPECT_VALUE,  /* all json contents are spaces */
     LEPT_PARSE_INVALID_VALUE,  /* invalid value */
     LEPT_PARSE_ROOT_NOT_SINGULAR  /* value after second space */
-};
+} lept_flag;
 
 int lept_parse(lept_value* v, const char* json);
 
