@@ -1,6 +1,8 @@
 # IDE dirs
-[Bb]uild
-.idea
+[Bb]uild/
+*/[Bb]uild
+*/.idea
+.idea/
 
 # complied binary files:
 .dll
