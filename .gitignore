@@ -1,1 +1,8 @@
 */build/
+.idea/
+*/.idea/
+
+# complied binary files:
+*/.dll
+*/.[oa]
+*/.exe

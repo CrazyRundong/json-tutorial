@@ -10,7 +10,7 @@ static int test_pass = 0;
 #define EXPECT_EQ_BASE(equality, expect, actual, format) \
     do {\
         test_count++;\
-        if (equality)\
+        if (equality) /* if expect value is true */ \
             test_pass++;\
         else {\
             fprintf(stderr, "%s:%d: expect: " format " actual: " format "\n", __FILE__, __LINE__, expect, actual);\
