@@ -67,9 +67,33 @@ static int lept_parse_null(lept_context* c, lept_value* v) {
 }
 */
 
+/* add: parse exp value (int) */
+static int double_exp(const char* c) {
+    const char *p = c;
+    while (*p != 'e' && *p != 'E' && (p - c) < strlen(c))
+        ++p;
+    if ((p - c) == strlen(c))
+        return 0;
+    else {
+        return atoi(++p);
+    }
+}
+
 static int lept_parse_number(lept_context* c, lept_value* v) {
     char* end;
     /* \TODO validate number */
+    if (*c->json == '+' || /* start with '+' */
+            *c->json == '.' || /* start with '.' */
+            c->json[strlen(c->json) - 1] == '.' || /* end with '.' */
+            (*c->json != '-' && (*c->json) - '0' > 9)) {
+        return LEPT_PARSE_INVALID_VALUE;
+    } else if ((*c->json == '0' && strlen(c->json) > 1 && c->json[1] != '.')) {
+        /* after zero should be '.' or nothing */
+        return LEPT_PARSE_ROOT_NOT_SINGULAR;
+    } else if (double_exp(c->json) > 308) {
+        /* number too big for double */
+        return LEPT_PARSE_NUMBER_TOO_BIG;
+    }
     v->n = strtod(c->json, &end);
     if (c->json == end)
         return LEPT_PARSE_INVALID_VALUE;
