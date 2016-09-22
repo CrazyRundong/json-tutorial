@@ -20,8 +20,7 @@ static void lept_parse_whitespace(lept_context* c) {
 #define PARSE_LIT(c, v, tar) \
     do {\
         EXPECT(c, *tar); /* c->json++ */ \
-        int idx; \
-        for (idx = 0; idx < strlen(tar) - 1; ++idx) { \
+        for (size_t idx = 0; idx < strlen(tar) - 1; ++idx) { \
             if (c->json[idx] != tar[idx + 1]) \
                 return LEPT_PARSE_INVALID_VALUE; \
         } \
