@@ -9,7 +9,7 @@ typedef struct {
     union {
         struct { char* s; size_t len; }s;  /* string: null-terminated string, string length */
         double n;                          /* number */
-    }u;
+    }u; /* a lept_value can't be string and number both */
     lept_type type;
 }lept_value;
 
