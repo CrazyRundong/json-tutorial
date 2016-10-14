@@ -44,6 +44,14 @@ static void* lept_context_pop(lept_context* c, size_t size) {
     return c->stack + (c->top -= size);
 }
 
+
+static void lept_context_free(lept_context* c) {
+    assert(c != NULL);
+    if (c->top)
+        lept_context_pop(c, c->top);
+    c->top = 0;
+}
+
 static void lept_parse_whitespace(lept_context* c) {
     const char *p = c->json;
     while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r')
@@ -187,7 +195,8 @@ static int lept_parse_array(lept_context* c, lept_value* v) {
     size_t size = 0;
     int ret;
     EXPECT(c, '[');
-    if (*c->json == ']') {
+    lept_parse_whitespace(c);
+    if (*c->json == ']') {  /* null array */
         c->json++;
         v->type = LEPT_ARRAY;
         v->u.a.size = 0;
@@ -197,22 +206,29 @@ static int lept_parse_array(lept_context* c, lept_value* v) {
     for (;;) {
         lept_value e;
         lept_init(&e);
-        if ((ret = lept_parse_value(c, &e)) != LEPT_PARSE_OK)
+        lept_parse_whitespace(c);
+        if ((ret = lept_parse_value(c, &e)) != LEPT_PARSE_OK) {
+            lept_context_free(c);
             return ret;
+        }
+        /* lept_context_push returns stack top, copy temp buffer e into stack c */
         memcpy(lept_context_push(c, sizeof(lept_value)), &e, sizeof(lept_value));
         size++;
-        if (*c->json == ',')
+        lept_parse_whitespace(c);
+        if (*c->json == ',')  /* skip comma */
             c->json++;
-        else if (*c->json == ']') {
+        else if (*c->json == ']') {  /* end of array */
             c->json++;
             v->type = LEPT_ARRAY;
             v->u.a.size = size;
-            size *= sizeof(lept_value);
+            size *= sizeof(lept_value);  /* block_num * single_block_size */
             memcpy(v->u.a.e = (lept_value*)malloc(size), lept_context_pop(c, size), size);
             return LEPT_PARSE_OK;
         }
-        else
+        else {
+            lept_context_free(c);
             return LEPT_PARSE_MISS_COMMA_OR_SQUARE_BRACKET;
+        }
     }
 }
 
