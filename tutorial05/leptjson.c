@@ -47,9 +47,8 @@ static void* lept_context_pop(lept_context* c, size_t size) {
 
 static void lept_context_free(lept_context* c) {
     assert(c != NULL);
-    if (c->top)
-        lept_context_pop(c, c->top);
-    c->top = 0;
+    while (c->top)
+        lept_free((lept_value*)lept_context_pop(c, sizeof(lept_value)));
 }
 
 static void lept_parse_whitespace(lept_context* c) {
@@ -223,6 +222,7 @@ static int lept_parse_array(lept_context* c, lept_value* v) {
             v->u.a.size = size;
             size *= sizeof(lept_value);  /* block_num * single_block_size */
             memcpy(v->u.a.e = (lept_value*)malloc(size), lept_context_pop(c, size), size);
+            /*lept_context_free(c);*/
             return LEPT_PARSE_OK;
         }
         else {
@@ -269,6 +269,13 @@ void lept_free(lept_value* v) {
     assert(v != NULL);
     if (v->type == LEPT_STRING)
         free(v->u.s.s);
+    else if (v->type == LEPT_ARRAY) {
+        /* free each element in v->array */
+        size_t idx;
+        for(idx = 0; idx < v->u.a.size; idx++)
+            lept_free(&v->u.a.e[idx]);
+        free(v->u.a.e);
+    }
     v->type = LEPT_NULL;
 }
 
